@@ -8,22 +8,24 @@ import { Model } from 'mongoose';
 export class UsersService {
     constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-    async create(user: CreateUserDto): Promise<User> {
-        const newUser = new this.userModel({
-            address: user.address,
-            name: user.name,
-            description: user.description,
-            socials: {
-                web: user.socials.web,
-                twitter: user.socials.twitter,
-                instagram: user.socials.instagram,
-                facebook: user.socials.facebook,
-                behance: user.socials.behance,
-            },
-            joinDate: new Date(Date.now())
-        })
+    async connect(address: string): Promise<User> {
+        const user = await this.userModel.findOne({ address: address }).exec()
+        if ( !user ) {
+            const newUser = new this.userModel({
+                address: user.address,
+                joinDate: new Date(Date.now())
+            })
 
-        return newUser.save()
+            return newUser.save()
+        }
+        
+        return user
+    }
+
+    async create(user: CreateUserDto, address: string): Promise<User> {
+        const findUser = await this.userModel.findOneAndUpdate({ address: address }, user, { new: true})
+
+        return findUser
     }
 
     async update(user: UpdateUserDto, address:  string): Promise<User> {

@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Req, Res, Put } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
+import { CreateUserDto, UpdateUserDto, ConnectUserDto } from './dto/user.dto';
 import { Request, Response } from 'express';
 
 @Controller('users')
@@ -8,15 +8,45 @@ export class UsersController {
   constructor(private UsersService: UsersService) { }
 
   @Post()
-  async create(
-    @Body() CreateUserDto: CreateUserDto,
+  async connectAccount(
+    @Body() ConnectUserDto: ConnectUserDto,
     @Res() res: Response
   ) {
-    const newUser = await this.UsersService.create(CreateUserDto)
-    res.status(200).json({
-      status: 'success',
-      data: newUser
-    })
+    try {
+      const user = await this.UsersService.connect(ConnectUserDto.address)
+      res.status(200).json({
+        status: 'success',
+        data: user
+      })
+    }
+    catch (e) {
+      res.status(400).json({
+        status: 'fail',
+        message: e.message
+      })
+    }
+  }
+
+  @Post(':address')
+  async create(
+    @Body() CreateUserDto: CreateUserDto,
+    @Res() res: Response,
+    @Req() req: Request
+  ) {
+    try {
+      const address = req.params.address
+      const newUser = await this.UsersService.create(CreateUserDto, address)
+      res.status(200).json({
+        status: 'success',
+        data: newUser
+      })
+    }
+    catch (e) {
+      res.status(400).json({
+        status: 'fail',
+        message: e.message
+      })
+    }
   }
 
   @Put(':address/edit')
@@ -25,27 +55,39 @@ export class UsersController {
     @Res() res: Response,
     @Req() req: Request
   ) {
-    const adddress = req.params.address
-    await this.UsersService.update(updateUserDto, adddress)
-    res.status(200).json({
-      status: 'success',
-    })
+    try {
+      const address = req.params.address
+      console.log(updateUserDto)
+      await this.UsersService.update(updateUserDto, address)
+      res.status(200).json({
+        status: 'success',
+      })
+    }
+    catch (e) {
+      res.status(400).json({
+        status: 'fail',
+        message: e.message
+      })
+    }
   }
-
-  // @Get() 
-  // async findAll(): Promise<Cat[]> {
-  //   return this.UsersService.findAll();
-  // }
 
   @Get(':address')
   async findAll(
     @Req() req: Request,
     @Res() res: Response
   ) {
-    const user = await this.UsersService.findByAddress(req.params.address)
-    res.status(200).json({
-      status: 'success',
-      data: user
-    })
+    try {
+      const user = await this.UsersService.findByAddress(req.params.address)
+      res.status(200).json({
+        status: 'success',
+        data: user
+      })
+    }
+    catch (e) {
+      res.status(400).json({
+        status: 'fail',
+        message: e.message
+      })
+    }
   }
 }
