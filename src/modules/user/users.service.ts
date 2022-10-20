@@ -6,33 +6,35 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+    constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
 
     async connect(address: string): Promise<User> {
         const user = await this.userModel.findOne({ address: address }).exec()
-        if ( !user ) {
+        console.log(user)
+        if (user === null) {
             const newUser = new this.userModel({
-                address: user.address,
+                address: address,
                 joinDate: new Date(Date.now())
             })
 
             return newUser.save()
         }
-        
+
         return user
     }
 
     async create(user: CreateUserDto, address: string): Promise<User> {
-        const findUser = await this.userModel.findOneAndUpdate({ address: address }, user, { new: true})
+        const findUser = await this.userModel.findOneAndUpdate({ address: address }, user, { new: true })
 
         return findUser
     }
 
-    async update(user: UpdateUserDto, address:  string): Promise<User> {
-        return await this.userModel.findOneAndUpdate({ address: address }, user)
+    async update(user: UpdateUserDto, address: string): Promise<User> {
+        const updateUser = await this.userModel.findOneAndUpdate({ address: address }, user, { new: true })
+        return updateUser
     }
 
     async findByAddress(address: string): Promise<User> {
-       return await this.userModel.findOne({ address: address }).exec()
+        return await this.userModel.findOne({ address: address }).exec()
     }
 }

@@ -9,11 +9,11 @@ export class UsersController {
 
   @Post()
   async connectAccount(
-    @Body() ConnectUserDto: ConnectUserDto,
+    @Body() connectUserDto: ConnectUserDto,
     @Res() res: Response
   ) {
     try {
-      const user = await this.UsersService.connect(ConnectUserDto.address)
+      const user = await this.UsersService.connect(connectUserDto.address)
       res.status(200).json({
         status: 'success',
         data: user
@@ -57,10 +57,10 @@ export class UsersController {
   ) {
     try {
       const address = req.params.address
-      console.log(updateUserDto)
-      await this.UsersService.update(updateUserDto, address)
+      const updateUser = await this.UsersService.update(updateUserDto, address)
       res.status(200).json({
         status: 'success',
+        data: updateUser
       })
     }
     catch (e) {
