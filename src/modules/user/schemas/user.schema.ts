@@ -21,11 +21,11 @@ export class User extends Document {
     banner: string;
 
     @Prop(raw({
-        facebook: { type: String },
-        website: { type: String },
-        twitter: { type: String },
-        instagram: { type: String },
-        behance: { type: String },
+        facebook: { type: String, default: '' },
+        website: { type: String, default: '' },
+        twitter: { type: String, default: '' },
+        instagram: { type: String, default: '' },
+        behance: { type: String, default: '' },
     }))
     socials: Record<string, any>;
 
